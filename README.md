@@ -19,11 +19,15 @@
     $ docker-compose up -d --build
     $ docker ps  (*check run this project well)
 
-    for test> $ go test -run=nope ./...  
-        * make test event data like that  
-          
-
     for add a new event data> 
     $ curl localhost:8080/event -d '{"text":"Awesome Kira", "start_at":"2019-01-01T00:00:00Z", "end_at": "2019-01-10T00:00:00Z"}' -X POST  
+    (* you can see 200 success when there is no overlap data)  
+
 
     (* if you try abow curl again, you can receive 400 Bad request(there is overlap data) and overlap data.)  
+
+    for test> 
+        $ docker exec -it api /bin/bash
+        $ go test -run=nope ./...  
+        * make test event data like that  
+            
