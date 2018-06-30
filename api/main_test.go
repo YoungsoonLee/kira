@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -171,43 +172,23 @@ func makeInitData() error {
 			// Set init time
 			s := time.Date(2018, 06, sd, 00, 00, 00, 00, time.UTC)
 			e := time.Date(2018, 06, ed, 00, 00, 00, 00, time.UTC)
+
+			// Make text
 			txt := "event number #" + strconv.Itoa(i)
 
-			// Make payload data JSON
-			payload := models.Event{Text: txt, StartAt: s, EndAt: e}
-			p, err := json.Marshal(payload)
+			// Make data
+			event := &models.Event{
+				Text:    txt,
+				StartAt: s,
+				EndAt:   e,
+			}
 
-			// Make test request
-			req, err := http.NewRequest("POST", "/event", bytes.NewBuffer(p))
-			if err != nil {
+			// Insert DB
+			eventDB := utils.DBNew().C("events")
+			if err := eventDB.Insert(event); err != nil {
+				log.Println(err)
 				return err
 			}
-			// Set Header for JSON
-			req.Header.Set("Content-Type", "application/json")
-
-			// Send test data
-			rr := httptest.NewRecorder()
-			router := mux.NewRouter()
-			router.HandleFunc("/event", routes.CreateEvent)
-			router.ServeHTTP(rr, req)
-
-			/*
-				// Make text
-				txt := "event number #" + strconv.Itoa(i)
-
-				// Make data
-				event := &models.Event{
-					Text:    txt,
-					StartAt: s,
-					EndAt:   e,
-				}
-
-				// Insert DB
-				eventDB := utils.DBNew().C("events")
-				if err := eventDB.Insert(event); err != nil {
-					log.Println(err)
-				}
-			*/
 		}
 
 	}
