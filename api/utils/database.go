@@ -23,7 +23,7 @@ var _instance *DB
 func DBNew() *mgo.Database {
 	_initCtx.Do(func() {
 		_instance = new(DB)
-		session, err := mgo.Dial("mongo:27100") // for docker
+		session, err := mgo.Dial("mongo:27017") // for docker
 		//session, err := mgo.Dial("localhost:27017") // for local
 		if err != nil {
 			fmt.Printf("Error en mongo: %+v\n", err)
