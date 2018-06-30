@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -31,7 +30,10 @@ import (
 // >> Expect: return 400 Bad Request & three overlaps data
 func TestOverlapsEvent(t *testing.T) {
 	// make init db
-	makeInitData()
+	err := makeInitData()
+	if err != nil {
+		t.Error(err)
+	}
 
 	// Test case #1.
 	// Test add a event when there is overlpas events
@@ -143,7 +145,7 @@ func TestAddNewEvent(t *testing.T) {
 // Text: event number #3, StartAt: 2018-06-21T00:00:00Z, EndAt: 2018-06-30T23:00:00Z
 // Text: event number #4, StartAt: 2018-07-01T00:00:00Z, EndAt: 2018-07-10T23:00:00Z
 // Text: event number #5, StartAt: 2018-07-11T00:00:00Z, EndAt: 2018-07-20T23:00:00Z
-func makeInitData() {
+func makeInitData() error {
 	// Connect DB
 	eventDB := utils.DBNew().C("events")
 
@@ -169,22 +171,28 @@ func makeInitData() {
 			// Set init time
 			s := time.Date(2018, 06, sd, 00, 00, 00, 00, time.UTC)
 			e := time.Date(2018, 06, ed, 00, 00, 00, 00, time.UTC)
-
-			// Make text
 			txt := "event number #" + strconv.Itoa(i)
 
-			// Make data
-			event := &models.Event{
-				Text:    txt,
-				StartAt: s,
-				EndAt:   e,
-			}
+			// Make payload data JSON
+			payload := models.Event{Text: txt, StartAt: s, EndAt: e}
+			p, err := json.Marshal(payload)
 
-			// Insert DB
-			eventDB := utils.DBNew().C("events")
-			if err := eventDB.Insert(event); err != nil {
-				log.Println(err)
+			// Make test request
+			req, err := http.NewRequest("POST", "/event", bytes.NewBuffer(p))
+			if err != nil {
+				return err
 			}
+			// Set Header for JSON
+			req.Header.Set("Content-Type", "application/json")
+
+			// Send test data
+			rr := httptest.NewRecorder()
+			router := mux.NewRouter()
+			router.HandleFunc("/event", routes.CreateEvent)
+			router.ServeHTTP(rr, req)
 		}
+
 	}
+
+	return nil
 }
