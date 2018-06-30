@@ -15,11 +15,17 @@ func main() {
 	// Set up routes
 	r := mux.NewRouter()
 
+	// route echo for healty check
 	r.HandleFunc("/echo", routes.Echo).Methods("GET")
 
-	// r.HandleFunc("/images", routes.CreateImages).Methods("POST")
-	// r.HandleFunc("/images/{id:[0-9]+}", routes.GetImages).Methods("POST")
+	// route add event
+	// if there is overlaps data, return message and overlaps data when a new event add
+	r.HandleFunc("/event", routes.CreateEvent).Methods("POST")
 
+	// route get all events data
+	r.HandleFunc("/event", routes.GetEvents).Methods("GET")
+
+	// start server
 	err := http.ListenAndServe(":8080", cors.AllowAll().Handler(r))
 	if err != nil {
 		fmt.Println(err)
