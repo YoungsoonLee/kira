@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/YoungsoonLee/kira/api/models"
 	"github.com/YoungsoonLee/kira/api/utils"
@@ -11,16 +12,23 @@ import (
 )
 
 // CreateEvent ...
-// store event information into DB
-// Check overlaps event data with qiery when new event insert
-// That is an overlaps data.
-// If the start date and end date of the event data to be newly input exists
-// between the start date and end date of the previously input data.
+// Store a new event into DB
+// Check. whether there is overlaps event or not, when a new event data insert through the query.
+// The meaning of overlaps data is as follows.
+// >> If the start date and end date of the event data to be newly input exists
+// >> between the start date and end date of the previously input data.
+// >> Case 1: start_at of a new event data <= start_at of existing the event data <= end_at of a new event data
+// >> Case 2: start_at of a new event data <= end_at of existing the event data <= end_at of a new event data
+// >> Case 3: start_at of existing the event data  <= start_at, end_at of a new event data <= end_at of existing the event data
+// >. Case 4: new event start_at <= existing event start_at, end_at <= new event end_at
 func CreateEvent(w http.ResponseWriter, r *http.Request) {
+	// Set time UTC
+	time.Local = time.UTC
+
 	// Read body from request
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		utils.ResponseError(w, err.Error(), nil, http.StatusBadRequest)
+		utils.ResponseError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -28,59 +36,78 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	event := &models.Event{}
 	err = json.Unmarshal(data, event)
 	if err != nil {
-		utils.ResponseError(w, err.Error(), nil, http.StatusBadRequest)
+		utils.ResponseError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Init DB
 	eventDB := utils.DBNew().C("events")
-	// variable for return event data
+	// Variable for return event data
 	result := []models.Event{}
 
-	// Check overlaps event data with qiery when new event insert
-	// That is an overlaps data.
-	// If the start date and end date of the event data to be newly input exists
-	// between the start date and end date of the previously input data.
+	// Check. whether there is overlaps event or not, when a new event data insert through the query.
+	// The meaning of overlaps data is as follows.
+	// >> If the start date and end date of the event data to be newly input exists
+	// >> between the start date and end date of the previously input data.
+	// >> Case 1: start_at of a new event data <= start_at of existing the event data <= end_at of a new event data
+	// >> Case 2: start_at of a new event data <= end_at of existing the event data <= end_at of a new event data
+	// >> Case 3: start_at of existing the event data  <= start_at, end_at of a new event data <= end_at of existing the event data
+	// >. Case 4: new event start_at <= existing event start_at, end_at <= new event end_at
 	if err := eventDB.Find(
-		bson.M{
-			"start_at": bson.M{"$gte": event.StartAt},
-			"end_at":   bson.M{"$lte": event.EndAt},
-		},
+		bson.M{"$or": []bson.M{
+			// Case 1: new event start_at <= existing event start_at <= new evet end_at
+			bson.M{"start_at": bson.M{"$gte": event.StartAt, "$lte": event.EndAt}},
+
+			// Case 2: new event start_at <= existing event end_at <= new evet end_at
+			bson.M{"end_at": bson.M{"$gte": event.StartAt, "$lte": event.EndAt}},
+
+			// Case 3: existing event start_at <= new event start_at, end_at <= existing event end_at
+			bson.M{"$and": []bson.M{
+				bson.M{"start_at": bson.M{"$lte": event.StartAt}},
+				bson.M{"end_at": bson.M{"$gte": event.EndAt}},
+			}},
+
+			// Case 4:  new event start_at <= existing event start_at, end_at <= new event end_at
+			bson.M{"$and": []bson.M{
+				bson.M{"start_at": bson.M{"$gte": event.StartAt}},
+				bson.M{"end_at": bson.M{"$lte": event.EndAt}},
+			}},
+		}},
 	).All(&result); err != nil {
 		// Error
-		utils.ResponseError(w, err.Error(), nil, http.StatusInternalServerError)
+		utils.ResponseError(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		// Check overlaps event data
 		if len(result) > 0 {
-			// overlaps
-			utils.ResponseError(w, "event overlaps", result, http.StatusBadRequest)
+			// Overlaps
+			// Return 400 BedRequestError & overlaps data
+			utils.ResponseError(w, result, http.StatusBadRequest)
 		} else {
 			// There is no overlaps data
-			// Insert new event info
+			// Insert a new event data
 			if err := eventDB.Insert(event); err != nil {
-				utils.ResponseError(w, err.Error(), nil, http.StatusInternalServerError)
+				utils.ResponseError(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-
-			// Return new event information
-			utils.ResponseJSON(w, "created event", event)
+			// Return 200 Success & a new event data
+			utils.ResponseJSON(w, event)
 		}
 	}
 }
 
 // GetEvents ...
-// return all events data
+// Return all events data
 func GetEvents(w http.ResponseWriter, r *http.Request) {
-	// init model for result
+	// Init model for result
 	result := []models.Event{}
 
-	// connect DB
+	// Connect DB
 	eventDB := utils.DBNew().C("events")
 
-	// query and return all events data
+	// Query and return all events data
 	if err := eventDB.Find(nil).All(&result); err != nil {
-		utils.ResponseError(w, err.Error(), nil, http.StatusInternalServerError)
+		utils.ResponseError(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		utils.ResponseJSON(w, nil, result)
+		utils.ResponseJSON(w, result)
 	}
 }
