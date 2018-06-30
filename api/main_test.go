@@ -190,6 +190,24 @@ func makeInitData() error {
 			router := mux.NewRouter()
 			router.HandleFunc("/event", routes.CreateEvent)
 			router.ServeHTTP(rr, req)
+
+			/*
+				// Make text
+				txt := "event number #" + strconv.Itoa(i)
+
+				// Make data
+				event := &models.Event{
+					Text:    txt,
+					StartAt: s,
+					EndAt:   e,
+				}
+
+				// Insert DB
+				eventDB := utils.DBNew().C("events")
+				if err := eventDB.Insert(event); err != nil {
+					log.Println(err)
+				}
+			*/
 		}
 
 	}

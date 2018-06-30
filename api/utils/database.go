@@ -25,7 +25,7 @@ func DBNew() *mgo.Database {
 		_instance = new(DB)
 		//session, err := mgo.Dial("localhost:27017") // for local
 
-		session, err := mgo.Dial("mongo:27017") // for docker
+		session, err := mgo.Dial("mongo:27100") // for docker
 
 		if err != nil {
 			fmt.Printf("Error en mongo: %+v\n", err)
