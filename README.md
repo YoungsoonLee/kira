@@ -18,7 +18,6 @@
     $ cd kira
     $ docker-compose up -d --build
     $ docker ps  (*check run this project well)  
-
    ![](./img/ps.png)  
 
     for add a new event data> 
