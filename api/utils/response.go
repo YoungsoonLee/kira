@@ -7,11 +7,13 @@ import (
 
 // ResponseError ...
 // return response error
-func ResponseError(w http.ResponseWriter, data interface{}, code int) {
+func ResponseError(w http.ResponseWriter, message string, data interface{}, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	if data != nil {
 		json.NewEncoder(w).Encode(data)
+	} else {
+		json.NewEncoder(w).Encode(map[string]string{"error": message})
 	}
 }
 

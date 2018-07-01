@@ -28,7 +28,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	// Read body from request
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		utils.ResponseError(w, err.Error(), http.StatusBadRequest)
+		utils.ResponseError(w, err.Error(), nil, http.StatusBadRequest)
 		return
 	}
 
@@ -36,7 +36,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	event := &models.Event{}
 	err = json.Unmarshal(data, event)
 	if err != nil {
-		utils.ResponseError(w, err.Error(), http.StatusBadRequest)
+		utils.ResponseError(w, err.Error(), nil, http.StatusBadRequest)
 		return
 	}
 
@@ -75,18 +75,18 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		}},
 	).All(&result); err != nil {
 		// Error
-		utils.ResponseError(w, err.Error(), http.StatusInternalServerError)
+		utils.ResponseError(w, err.Error(), nil, http.StatusInternalServerError)
 	} else {
 		// Check overlaps event data
 		if len(result) > 0 {
 			// Overlaps
 			// Return 400 BedRequestError & overlaps data
-			utils.ResponseError(w, result, http.StatusBadRequest)
+			utils.ResponseError(w, "", result, http.StatusBadRequest)
 		} else {
 			// There is no overlaps data
 			// Insert a new event data
 			if err := eventDB.Insert(event); err != nil {
-				utils.ResponseError(w, err.Error(), http.StatusInternalServerError)
+				utils.ResponseError(w, err.Error(), nil, http.StatusInternalServerError)
 				return
 			}
 			// Return 200 Success & a new event data
@@ -106,7 +106,7 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	// Query and return all events data
 	if err := eventDB.Find(nil).All(&result); err != nil {
-		utils.ResponseError(w, err.Error(), http.StatusInternalServerError)
+		utils.ResponseError(w, err.Error(), nil, http.StatusInternalServerError)
 	} else {
 		utils.ResponseJSON(w, result)
 	}

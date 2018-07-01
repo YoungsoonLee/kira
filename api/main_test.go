@@ -82,7 +82,13 @@ func TestOverlapsEvent(t *testing.T) {
 			t.Errorf("got '%d', expect '%d'", got, expect)
 		}
 	})
+}
 
+// Test Case 2: start_at: 2018-09-01, end_at: 2018-09-10
+// >> Expect: return 200 Success & a new event data
+// If you want to test the same below test data for overlap,
+// you use TestOverlapsEvent. It's just for testing add a new event data
+func TestAddNewEvent(t *testing.T) {
 	// Test case #2.
 	// Test add a new event data when there is no overlpas events
 	// Test data: start_at: 2018-10-01, end_at: 2018-10-10
