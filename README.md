@@ -28,6 +28,6 @@
 
     for test> 
         $ docker exec -it api /bin/bash
-        $ go test -run=nope ./...  
+        $ go test ./...  
         * make test event data like that  
-            
+

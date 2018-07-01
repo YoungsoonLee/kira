@@ -90,7 +90,9 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// Return 200 Success & a new event data
-			utils.ResponseJSON(w, event)
+			var re []interface{} // for unmarshall
+			re = append(re, event)
+			utils.ResponseJSON(w, re)
 		}
 	}
 }

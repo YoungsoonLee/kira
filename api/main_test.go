@@ -99,7 +99,7 @@ func TestAddNewEvent(t *testing.T) {
 		e := time.Date(2018, 10, 10, 00, 00, 00, 00, time.UTC)
 
 		// Make payload data JSON
-		payload := models.Event{Text: "a new kira event in Oct", StartAt: s, EndAt: e}
+		payload := models.Event{Text: "a new kira event for test", StartAt: s, EndAt: e}
 		p, err := json.Marshal(payload)
 
 		// Make test request
