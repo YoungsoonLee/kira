@@ -17,17 +17,18 @@
     $ git clone https://github.com/YoungsoonLee/kira.git  
     $ cd kira
     $ docker-compose up -d --build
-    $ docker ps  (*check run this project well)
-    ![](./images/ps.png)  
+    $ docker ps  (*check run this project well)  
+
+    ![ps](./img/ps.png)  
 
     for add a new event data> 
     ex) $ curl localhost:8080/event -d '{"text":"Awesome Kira", "start_at":"2019-01-01T00:00:00Z", "end_at": "2019-01-10T00:00:00Z"}' -X POST -v  
 
     * you can receive HTTP 200 code success when there is no overlap data
-    ![](./images/200.png)  
+    ![](./img/200.png)  
 
     * if you try abow curl again, you can receive HTTP 400 code Bad request(there is overlap data) and overlap data.
-    ![](./images/400.png)  
+    ![](./img/400.png)  
 
     for test> 
         * use testwithCurl.sh(like live test)
