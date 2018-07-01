@@ -26,7 +26,7 @@
     * you can receive HTTP 200 code success when there is no overlap data
    ![HTTP 200 OK, There is no overlap data](./img/200.png)  
 
-    * you can receive HTTP 400 code Bad request(there is overlap data) and overlap data when there is overlap data
+    * you can receive HTTP 400 code Bad request and overlap data when there is overlap data
    ![HTTP 400 BAR REQUEST, There is overlap data](./img/400.png)  
 
     for test> 
