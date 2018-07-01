@@ -89,6 +89,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 				utils.ResponseError(w, err.Error(), nil, http.StatusInternalServerError)
 				return
 			}
+
 			// Return 200 Success & a new event data
 			var re []interface{} // for unmarshall
 			re = append(re, event)
