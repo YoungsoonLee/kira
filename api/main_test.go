@@ -45,7 +45,7 @@ func TestOverlapsEvent(t *testing.T) {
 		e := time.Date(2018, 06, 22, 00, 00, 00, 00, time.UTC)
 
 		// Make payload data JSON
-		payload := models.Event{Text: "a new kira event", StartAt: s, EndAt: e}
+		payload := models.Event{Text: "test overlap datas", StartAt: s, EndAt: e}
 		p, err := json.Marshal(payload)
 
 		// Make test request
@@ -99,7 +99,7 @@ func TestAddNewEvent(t *testing.T) {
 		e := time.Date(2018, 10, 10, 00, 00, 00, 00, time.UTC)
 
 		// Make payload data JSON
-		payload := models.Event{Text: "a new kira event for test", StartAt: s, EndAt: e}
+		payload := models.Event{Text: "add a new event, no overlap", StartAt: s, EndAt: e}
 		p, err := json.Marshal(payload)
 
 		// Make test request
@@ -151,7 +151,7 @@ func makeInitData() error {
 	eventDB := utils.DBNew().C("events")
 
 	// Remove all documents
-	// eventDB.RemoveAll(nil)
+	eventDB.RemoveAll(nil)
 
 	// Check count for alredy having data
 	c, _ := eventDB.Count()
