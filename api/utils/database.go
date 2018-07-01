@@ -24,7 +24,6 @@ func DBNew() *mgo.Database {
 	_initCtx.Do(func() {
 		_instance = new(DB)
 
-		//session, err := mgo.Dial("localhost:27017") // for local
 		session, err := mgo.Dial("mongo:27017") // for docker
 
 		if err != nil {
