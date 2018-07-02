@@ -72,4 +72,8 @@
 
     * I Just commited the config file for this assignment, I manage the configuration file separately. !!!
 
-
+### Test Environment
+    macOS Sierra 10.12.6,  
+    Docker community edition 18.03.1-ce-mac65 (24312),  
+    ocker-compose version 1.21.1,  
+    Golang 1.8  
