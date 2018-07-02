@@ -4,11 +4,21 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"sync"
 
-	"github.com/joho/godotenv"
+	"github.com/tkanos/gonfig"
 	"gopkg.in/mgo.v2"
 )
+
+// Configuration ...
+// For config
+type Configuration struct {
+	DbURL string
+}
 
 // DB ...
 // For DB connection
@@ -24,17 +34,16 @@ var _instance *DB
 // Make DB instance and return
 func DBNew() *mgo.Database {
 
-	err := godotenv.Load()
+	configuration := Configuration{}
+	err := gonfig.GetConf(getFileName(), &configuration)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalln(err)
 	}
-
-	url := os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT")
 
 	_initCtx.Do(func() {
 		_instance = new(DB)
 
-		session, err := mgo.Dial(url)
+		session, err := mgo.Dial(configuration.DbURL)
 
 		if err != nil {
 			fmt.Printf("Error en mongo: %+v\n", err)
@@ -43,4 +52,16 @@ func DBNew() *mgo.Database {
 		_instance.Database = session.DB("app")
 	})
 	return _instance.Database
+}
+
+func getFileName() string {
+	env := os.Getenv("ENV")
+	if len(env) == 0 {
+		env = "development"
+	}
+	filename := []string{"config.", env, ".json"}
+	_, dirname, _, _ := runtime.Caller(0)
+	filePath := path.Join(filepath.Dir(dirname), "config", strings.Join(filename, ""))
+
+	return filePath
 }
