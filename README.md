@@ -70,4 +70,6 @@
             "end_at" : ISODate("2018-10-10T00:00:00.000Z")
         }
 
+    * I Just commited the config file for assignment, I manage the configuration file separately. !!!
+
 
