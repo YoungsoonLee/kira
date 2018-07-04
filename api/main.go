@@ -25,6 +25,8 @@ func main() {
 	// route get all events data
 	r.HandleFunc("/event", routes.GetEvents).Methods("GET")
 
+	log.Println("Listening on port 8080...")
+
 	// start server
 	err := http.ListenAndServe(":8080", cors.AllowAll().Handler(r))
 	if err != nil {
@@ -33,7 +35,5 @@ func main() {
 		log.Fatalln("server start err")
 		os.Exit(1)
 	}
-
-	log.Println("Listening on port 8080...")
 
 }
